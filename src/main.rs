@@ -15,7 +15,7 @@ fn main() -> tetra::Result {
 
 struct Entity {
     texture: Texture,
-    angle: f32,
+    angle: f32,         // angle in radian [0,2*pi] //std::f32::consts::PI
     position: Vec2<f32>,
     velocity: Vec2<f32>,
 }
@@ -76,4 +76,35 @@ impl State for GameState {
         graphics::draw(ctx,&self.projectile.texture, self.projectile.position);
         Ok(())
     }
+
+    fn update(&mut self, ctx: &mut Context) -> tetra::Result {
+        const DESIRED_FPS: u32 = 60;
+        let dt = 1.0 / (DESIRED_FPS as f32);
+        // update_position
+        self.projectile.position.x += self.projectile.velocity.x * dt;
+        let vY = self.projectile.velocity.y;
+        self.projectile.position.y -= (vY*dt) - (10.0*dt*dt) / 2.0;
+
+        // update velocity.y
+        self.projectile.velocity.y += 10.0 * dt;
+
+        Ok(())
+    }
 }
+
+/*fn update_position(&mut self, dt: f32)
+{
+    self.projectile.position.x = positionX(dt);
+    self.projectile.position.y = positionY(dt);
+}
+
+fn update_positionX(&mut self, dt: f32) -> f32
+{
+    self.projectile.velocity.x * dt
+}
+
+fn update_positionY(&mut self, dt: f32) -> f32
+{
+    let vY = self.projectile.velocity.y;
+    (vY*dt) - (10.0*dt*dt) / 2.0 
+}*/
