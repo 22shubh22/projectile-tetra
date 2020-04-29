@@ -7,6 +7,8 @@ const WINDOW_WIDTH: f32 = 640.0;
 const WINDOW_HEIGHT: f32 = 480.0;
 const GRAVITY: f32 = 9.8;
 
+use std::f32;
+
 fn main() -> tetra::Result {
     ContextBuilder::new("Javelin", WINDOW_WIDTH as i32, WINDOW_HEIGHT as i32)
     .quit_on_escape(true)
@@ -55,13 +57,13 @@ impl GameState {
     fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         let javelin_texture = Texture::new(ctx, "./resources/arrow.png")?;
         let position = Vec2::new(
-            16.0,
+            32.0,
             (WINDOW_HEIGHT - javelin_texture.height() as f32 - 100.0),
         );
 
         let velocity = Vec2::new(
             50.0,
-            50.0,
+            -50.0,
         );
 
         Ok(GameState {
@@ -73,8 +75,11 @@ impl GameState {
 impl State for GameState {
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.2, 0.3, 0.9));
-
-        graphics::draw(ctx,&self.projectile.texture, self.projectile.position);
+        let drawparams = graphics::DrawParams::new()
+            .origin(self.projectile.origin())
+            .position(self.projectile.position)
+            .rotation(self.projectile.angle);
+        graphics::draw(ctx,&self.projectile.texture, drawparams);
         Ok(())
     }
 
@@ -84,10 +89,14 @@ impl State for GameState {
         // update_position
         self.projectile.position.x += self.projectile.velocity.x * dt;
         let vY = self.projectile.velocity.y;
-        self.projectile.position.y -= (vY*dt) - (GRAVITY*dt*dt) / 2.0;
+        self.projectile.position.y += (vY*dt) - (GRAVITY*dt*dt) / 2.0;
 
         // update velocity.y
-        self.projectile.velocity.y -= GRAVITY * dt;
+        self.projectile.velocity.y += GRAVITY * dt;
+
+        // update angle, in radian
+        //let temp = - self.projectile.velocity.x / self.projectile.velocity.y;
+        self.projectile.angle = (self.projectile.velocity.y).atan2(self.projectile.velocity.x) + (f32::consts::FRAC_PI_2);
 
         Ok(())
     }
