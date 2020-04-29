@@ -5,6 +5,7 @@ use tetra::{Context, ContextBuilder, State};
 
 const WINDOW_WIDTH: f32 = 640.0;
 const WINDOW_HEIGHT: f32 = 480.0;
+const GRAVITY: f32 = 9.8;
 
 fn main() -> tetra::Result {
     ContextBuilder::new("Javelin", WINDOW_WIDTH as i32, WINDOW_HEIGHT as i32)
@@ -59,8 +60,8 @@ impl GameState {
         );
 
         let velocity = Vec2::new(
-            20.0,
-            20.0,
+            50.0,
+            50.0,
         );
 
         Ok(GameState {
@@ -83,10 +84,10 @@ impl State for GameState {
         // update_position
         self.projectile.position.x += self.projectile.velocity.x * dt;
         let vY = self.projectile.velocity.y;
-        self.projectile.position.y -= (vY*dt) - (10.0*dt*dt) / 2.0;
+        self.projectile.position.y -= (vY*dt) - (GRAVITY*dt*dt) / 2.0;
 
         // update velocity.y
-        self.projectile.velocity.y += 10.0 * dt;
+        self.projectile.velocity.y -= GRAVITY * dt;
 
         Ok(())
     }
