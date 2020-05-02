@@ -25,11 +25,11 @@ struct Entity {
 }
 
 impl Entity {
-    fn new(texture: Texture, position: Vec2<f32>, velocity: Vec2<f32>) -> Entity {
+    fn new(texture: Texture, velocity: Vec2<f32>) -> Entity {
         Entity {
             texture,
             angle : 0.,
-            position,
+            position : START_POS,
             velocity,
         }
     }
@@ -48,6 +48,10 @@ impl Entity {
             self.height() / 2.0 as f32,
         )
     }
+    fn setOrigin(&mut self, point: Vec2<f32>) {
+        self.position.x = point.x - (self.width()/2.0);
+        self.position.y = point.y - (self.height()/2.0);
+    }
 }
 
 struct GameState {
@@ -59,16 +63,18 @@ impl GameState {
     fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         let javelin_texture = Texture::new(ctx, "./resources/arrow.png")?;
         let demo_ball_texture = Texture::new(ctx, "./resources/ball.png")?;
-        let position = START_POS;
-
+        
         let velocity = Vec2::new(
             50.0,
             -50.0,
         );
 
+        let mut projectile = Entity::new(javelin_texture, velocity);
+        projectile.setOrigin(START_POS);
+
         Ok(GameState {
-            projectile: Entity::new(javelin_texture, position, velocity),
-            start_pos_demo: Entity::new(demo_ball_texture, START_POS, velocity),
+            projectile: projectile,
+            start_pos_demo: Entity::new(demo_ball_texture, velocity),
         })
     }
 }
