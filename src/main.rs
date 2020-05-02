@@ -6,6 +6,7 @@ use tetra::{Context, ContextBuilder, State};
 const WINDOW_WIDTH: f32 = 640.0;
 const WINDOW_HEIGHT: f32 = 480.0;
 const GRAVITY: f32 = 9.8;
+const START_POS: Vec2<f32> = Vec2::new(100.0, WINDOW_HEIGHT - 120.0);
 
 use std::f32;
 
@@ -51,11 +52,13 @@ impl Entity {
 
 struct GameState {
     projectile: Entity,
+    start_pos_demo: Entity,
 }
 
 impl GameState {
     fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         let javelin_texture = Texture::new(ctx, "./resources/arrow.png")?;
+        let demo_ball_texture = Texture::new(ctx, "./resources/ball.png")?;
         let position = Vec2::new(
             32.0,
             (WINDOW_HEIGHT - javelin_texture.height() as f32 - 100.0),
@@ -68,6 +71,7 @@ impl GameState {
 
         Ok(GameState {
             projectile: Entity::new(javelin_texture, position, velocity),
+            start_pos_demo: Entity::new(demo_ball_texture, START_POS, velocity),
         })
     }
 }
@@ -79,6 +83,7 @@ impl State for GameState {
             .origin(self.projectile.origin())
             .position(self.projectile.position)
             .rotation(self.projectile.angle);
+        graphics::draw(ctx,&self.start_pos_demo.texture, START_POS);
         graphics::draw(ctx,&self.projectile.texture, drawparams);
         Ok(())
     }
