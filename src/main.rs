@@ -59,10 +59,7 @@ impl GameState {
     fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         let javelin_texture = Texture::new(ctx, "./resources/arrow.png")?;
         let demo_ball_texture = Texture::new(ctx, "./resources/ball.png")?;
-        let position = Vec2::new(
-            32.0,
-            (WINDOW_HEIGHT - javelin_texture.height() as f32 - 100.0),
-        );
+        let position = START_POS;
 
         let velocity = Vec2::new(
             50.0,
@@ -81,6 +78,7 @@ impl State for GameState {
         graphics::clear(ctx, Color::rgb(0.2, 0.3, 0.9));
         let drawparams = graphics::DrawParams::new()
             .origin(self.projectile.origin())
+            .scale(Vec2::new(0.8, 0.6))
             .position(self.projectile.position)
             .rotation(self.projectile.angle);
         graphics::draw(ctx,&self.start_pos_demo.texture, START_POS);
