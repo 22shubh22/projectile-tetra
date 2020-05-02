@@ -2,6 +2,7 @@ use tetra::graphics::{self, Color, Texture, Rectangle};
 use tetra::math::Vec2;
 use tetra::window;
 use tetra::{Context, ContextBuilder, State};
+use tetra::input::{self, Key};
 
 const WINDOW_WIDTH: f32 = 640.0;
 const WINDOW_HEIGHT: f32 = 480.0;
@@ -57,6 +58,7 @@ impl Entity {
 struct GameState {
     projectile: Entity,
     start_pos_demo: Entity,
+    isPaused : bool,
 }
 
 impl GameState {
@@ -75,6 +77,7 @@ impl GameState {
         Ok(GameState {
             projectile: projectile,
             start_pos_demo: Entity::new(demo_ball_texture, velocity),
+            isPaused: false,
         })
     }
 }
@@ -96,16 +99,26 @@ impl State for GameState {
         const DESIRED_FPS: u32 = 60;
         let dt = 1.0 / (DESIRED_FPS as f32);
         // update_position
-        self.projectile.position.x += self.projectile.velocity.x * dt;
-        let vY = self.projectile.velocity.y;
-        self.projectile.position.y += (vY*dt) - (GRAVITY*dt*dt) / 2.0;
+        if !self.isPaused
+        {
+            self.projectile.position.x += self.projectile.velocity.x * dt;
+            let vY = self.projectile.velocity.y;
+            self.projectile.position.y += (vY*dt) - (GRAVITY*dt*dt) / 2.0;
 
-        // update velocity.y
-        self.projectile.velocity.y += GRAVITY * dt;
+            // update velocity.y
+            self.projectile.velocity.y += GRAVITY * dt;
 
-        // update angle, in radian
-        //let temp = - self.projectile.velocity.x / self.projectile.velocity.y;
-        self.projectile.angle = (self.projectile.velocity.y).atan2(self.projectile.velocity.x) + (f32::consts::FRAC_PI_2);
+            // update angle, in radian
+            //let temp = - self.projectile.velocity.x / self.projectile.velocity.y;
+            self.projectile.angle = (self.projectile.velocity.y).atan2(self.projectile.velocity.x) + (f32::consts::FRAC_PI_2);
+        }
+
+        // Pause with space for a sec.
+        self.isPaused = if input::is_key_down(ctx, Key::Space){
+            true
+        } else {
+            false
+        };
 
         Ok(())
     }
