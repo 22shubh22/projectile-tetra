@@ -120,6 +120,13 @@ impl State for GameState {
             false
         };
 
+        // quit after a projectile, when arrow origin reach ground
+
+        if self.projectile.position.y > START_POS.y {
+            window::quit(ctx);
+            println!("Arrow completes projectile!");
+        }
+
         Ok(())
     }
 }
