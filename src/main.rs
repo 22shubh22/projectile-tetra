@@ -139,9 +139,9 @@ impl State for GameState {
         const DESIRED_FPS: u32 = 60;
         let dt = 1.0 / (DESIRED_FPS as f32);
         // update_position
-        /*if !self.isPaused
+        if self.is_arrow_released
         {
-            self.projectile.position.x += self.projectile.velocity.x * dt;
+            /*self.projectile.position.x += self.projectile.velocity.x * dt;
             let vY = self.projectile.velocity.y;
             self.projectile.position.y += (vY*dt) - (GRAVITY*dt*dt) / 2.0;
 
@@ -150,8 +150,8 @@ impl State for GameState {
 
             // update angle, in radian
             //let temp = - self.projectile.velocity.x / self.projectile.velocity.y;
-            self.projectile.angle = (self.projectile.velocity.y).atan2(self.projectile.velocity.x) + (f32::consts::FRAC_PI_2);
-        }*/
+            self.projectile.angle = (self.projectile.velocity.y).atan2(self.projectile.velocity.x) + (f32::consts::FRAC_PI_2);*/
+        }
 
         // Pause with space for a sec.
         self.isPaused = if input::is_key_down(ctx, Key::Space){
@@ -167,13 +167,17 @@ impl State for GameState {
         self.mouse_ptr.position = input::get_mouse_position(ctx).round();
 
         if !self.is_arrow_released {
-            /*if input::is_mouse_button_down(ctx, MouseButton::Left) {
-                if(START_POS.x > mouse_position.x && START_POS.y > mouse_position.y)
+            if input::is_mouse_button_down(ctx, MouseButton::Left) {
+                let mouse_position = self.mouse_ptr.position;
+                // change angle at left part of screen..
+                if(START_POS.x > mouse_position.x)
                 {
                     self.projectile.angle = ((START_POS.y - mouse_position.y)/(START_POS.x - mouse_position.x)).atan();
                 }
-                
-            }*/
+            }
+            if input::is_mouse_button_released(ctx, MouseButton::Left) {
+                self.is_arrow_released = true;
+            }
         }
 
         // quit after a projectile, when arrow origin reach ground
