@@ -18,6 +18,20 @@ fn main() -> tetra::Result {
     .run(GameState::new)
 }
 
+struct UtilityGraphics {
+    texture: Texture,
+    position: Vec2<f32>,
+}
+
+impl UtilityGraphics {
+    fn new(texture: Texture, position: Vec2<f32>) -> UtilityGraphics {
+        UtilityGraphics {
+            texture,
+            position,
+        }
+    }
+}
+
 struct Entity {
     texture: Texture,
     angle: f32,         // angle in radian [0,2*pi] //std::f32::consts::PI
@@ -60,6 +74,7 @@ impl Entity {
 struct GameState {
     projectile: Entity,
     startPos: Entity,
+    mouse_ptr: UtilityGraphics,
     isPaused : bool,
     is_arrow_released: bool,
 }
@@ -76,22 +91,22 @@ impl GameState {
 
         let mut projectile = Entity::new(javelin_texture, velocity);
         projectile.setOrigin(START_POS);
-        // DEBUG
-        //println!("{:?}", projectile.origin());
         
         let mut cross = Entity::new(cross_texture, velocity);
         cross.setOrigin(START_POS);
-        // DEBUG
-        //println!("{:?}", cross.origin());
 
-        // DEBUG
-        // center Point
-        println!("Projectile origin {:?}", projectile.position + projectile.origin());
-        println!("cross origin {:?}", cross.position + cross.origin());
+        // println!("Projectile origin {:?}", projectile.position + projectile.origin());
+        // println!("cross origin {:?}", cross.position + cross.origin());
+
+        // Utility graphics
+        let mouse_ptr_texture = Texture::new(ctx, "./resources/ball.png")?;
+        let mouse_ptr_position = input::get_mouse_position(ctx).round();
+        let mouse_ptr = UtilityGraphics::new(mouse_ptr_texture, mouse_ptr_position);
 
         Ok(GameState {
             projectile: projectile,
             startPos: cross,
+            mouse_ptr,
             isPaused: false,
             is_arrow_released: false,
         })
@@ -100,17 +115,23 @@ impl GameState {
 
 impl State for GameState {
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+        // draw screen
         graphics::clear(ctx, Color::rgb(0.2, 0.3, 0.9));
+        // draw projectile
         let drawparams_projectile = graphics::DrawParams::new()
             .origin(self.projectile.origin())
             .scale(Vec2::new(0.8, 0.6))
             .position(START_POS)
             .rotation(self.projectile.angle);
         graphics::draw(ctx, &self.projectile.texture, drawparams_projectile);
+        // draw origin OR cross
         let drawparams_cross = graphics::DrawParams::new()
             .origin(self.startPos.origin())
             .position(START_POS);
         graphics::draw(ctx, &self.startPos.texture, drawparams_cross);
+
+        // draw mouse_ptr
+        graphics::draw(ctx, &self.mouse_ptr.texture, self.mouse_ptr.position);
         Ok(())
     }
 
@@ -143,15 +164,16 @@ impl State for GameState {
         /*
             If arrow not released ( bool is_arrow_released ) then set the angle to which the arrow should complete the projectile.
         */
+        self.mouse_ptr.position = input::get_mouse_position(ctx).round();
+
         if !self.is_arrow_released {
-            if input::is_mouse_button_down(ctx, MouseButton::Left) {
-                let mouse_position = input::get_mouse_position(ctx).round();
+            /*if input::is_mouse_button_down(ctx, MouseButton::Left) {
                 if(START_POS.x > mouse_position.x && START_POS.y > mouse_position.y)
                 {
                     self.projectile.angle = ((START_POS.y - mouse_position.y)/(START_POS.x - mouse_position.x)).atan();
                 }
                 
-            }
+            }*/
         }
 
         // quit after a projectile, when arrow origin reach ground
