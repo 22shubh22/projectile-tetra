@@ -8,6 +8,7 @@ const WINDOW_WIDTH: f32 = 640.0;
 const WINDOW_HEIGHT: f32 = 480.0;
 const GRAVITY: f32 = 9.8;
 const START_POS: Vec2<f32> = Vec2::new(100.0, WINDOW_HEIGHT - 120.0);
+const ARROw_VEL_MAG: f32 = 100.0;
 
 use std::f32;
 
@@ -40,12 +41,12 @@ struct Entity {
 }
 
 impl Entity {
-    fn new(texture: Texture, velocity: Vec2<f32>) -> Entity {
+    fn new(texture: Texture) -> Entity {
         Entity {
             texture,
             angle : 0.,
             position : START_POS,
-            velocity,
+            velocity : Vec2::new(0.,0.),
         }
     }
 
@@ -83,16 +84,11 @@ impl GameState {
     fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         let javelin_texture = Texture::new(ctx, "./resources/arrow.png")?;
         let cross_texture = Texture::new(ctx, "./resources/cross.png")?;
-        
-        let velocity = Vec2::new(
-            50.0,
-            -50.0,
-        );
 
-        let mut projectile = Entity::new(javelin_texture, velocity);
+        let mut projectile = Entity::new(javelin_texture);
         projectile.setOrigin(START_POS);
         
-        let mut cross = Entity::new(cross_texture, velocity);
+        let mut cross = Entity::new(cross_texture);
         cross.setOrigin(START_POS);
 
         // println!("Projectile origin {:?}", projectile.position + projectile.origin());

@@ -1,2 +1,4 @@
 Draw using tetra, opengl drawing?
 Rust, Drawparams origin ke karan dikkat?
+
+Currently const magnitude of velocity se arrow released.
