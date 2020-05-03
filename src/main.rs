@@ -52,19 +52,21 @@ impl Entity {
     fn setOrigin(&mut self, point: Vec2<f32>) {
         self.position.x = point.x - (self.width()/2.0);
         self.position.y = point.y - (self.height()/2.0);
+        // DEBUG
+        println!("setOrigin-position {:?}", self.position);
     }
 }
 
 struct GameState {
     projectile: Entity,
-    start_pos_demo: Entity,
+    startPos: Entity,
     isPaused : bool,
 }
 
 impl GameState {
     fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         let javelin_texture = Texture::new(ctx, "./resources/arrow.png")?;
-        let demo_ball_texture = Texture::new(ctx, "./resources/ball.png")?;
+        let cross_texture = Texture::new(ctx, "./resources/cross.png")?;
         
         let velocity = Vec2::new(
             50.0,
@@ -73,10 +75,22 @@ impl GameState {
 
         let mut projectile = Entity::new(javelin_texture, velocity);
         projectile.setOrigin(START_POS);
+        // DEBUG
+        //println!("{:?}", projectile.origin());
+        
+        let mut cross = Entity::new(cross_texture, velocity);
+        cross.setOrigin(START_POS);
+        // DEBUG
+        //println!("{:?}", cross.origin());
+
+        // DEBUG
+        // center Point
+        println!("Projectile origin {:?}", projectile.position + projectile.origin());
+        println!("cross origin {:?}", cross.position + cross.origin());
 
         Ok(GameState {
             projectile: projectile,
-            start_pos_demo: Entity::new(demo_ball_texture, velocity),
+            startPos: cross,
             isPaused: false,
         })
     }
@@ -85,13 +99,16 @@ impl GameState {
 impl State for GameState {
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.2, 0.3, 0.9));
-        let drawparams = graphics::DrawParams::new()
+        let drawparams_projectile = graphics::DrawParams::new()
             .origin(self.projectile.origin())
             .scale(Vec2::new(0.8, 0.6))
-            .position(self.projectile.position)
+            .position(START_POS)
             .rotation(self.projectile.angle);
-        graphics::draw(ctx,&self.start_pos_demo.texture, START_POS);
-        graphics::draw(ctx,&self.projectile.texture, drawparams);
+        graphics::draw(ctx, &self.projectile.texture, drawparams_projectile);
+        let drawparams_cross = graphics::DrawParams::new()
+            .origin(self.startPos.origin())
+            .position(START_POS);
+        graphics::draw(ctx, &self.startPos.texture, drawparams_cross);
         Ok(())
     }
 
@@ -99,7 +116,7 @@ impl State for GameState {
         const DESIRED_FPS: u32 = 60;
         let dt = 1.0 / (DESIRED_FPS as f32);
         // update_position
-        if !self.isPaused
+        /*if !self.isPaused
         {
             self.projectile.position.x += self.projectile.velocity.x * dt;
             let vY = self.projectile.velocity.y;
@@ -111,7 +128,7 @@ impl State for GameState {
             // update angle, in radian
             //let temp = - self.projectile.velocity.x / self.projectile.velocity.y;
             self.projectile.angle = (self.projectile.velocity.y).atan2(self.projectile.velocity.x) + (f32::consts::FRAC_PI_2);
-        }
+        }*/
 
         // Pause with space for a sec.
         self.isPaused = if input::is_key_down(ctx, Key::Space){
@@ -130,20 +147,3 @@ impl State for GameState {
         Ok(())
     }
 }
-
-/*fn update_position(&mut self, dt: f32)
-{
-    self.projectile.position.x = positionX(dt);
-    self.projectile.position.y = positionY(dt);
-}
-
-fn update_positionX(&mut self, dt: f32) -> f32
-{
-    self.projectile.velocity.x * dt
-}
-
-fn update_positionY(&mut self, dt: f32) -> f32
-{
-    let vY = self.projectile.velocity.y;
-    (vY*dt) - (10.0*dt*dt) / 2.0 
-}*/
