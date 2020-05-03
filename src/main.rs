@@ -2,7 +2,7 @@ use tetra::graphics::{self, Color, Texture, Rectangle};
 use tetra::math::Vec2;
 use tetra::window;
 use tetra::{Context, ContextBuilder, State};
-use tetra::input::{self, Key};
+use tetra::input::{self, Key, MouseButton};
 
 const WINDOW_WIDTH: f32 = 640.0;
 const WINDOW_HEIGHT: f32 = 480.0;
@@ -61,6 +61,7 @@ struct GameState {
     projectile: Entity,
     startPos: Entity,
     isPaused : bool,
+    is_arrow_released: bool,
 }
 
 impl GameState {
@@ -92,6 +93,7 @@ impl GameState {
             projectile: projectile,
             startPos: cross,
             isPaused: false,
+            is_arrow_released: false,
         })
     }
 }
@@ -136,6 +138,21 @@ impl State for GameState {
         } else {
             false
         };
+
+        //mouse angle set
+        /*
+            If arrow not released ( bool is_arrow_released ) then set the angle to which the arrow should complete the projectile.
+        */
+        if !self.is_arrow_released {
+            if input::is_mouse_button_down(ctx, MouseButton::Left) {
+                let mouse_position = input::get_mouse_position(ctx).round();
+                if(START_POS.x > mouse_position.x && START_POS.y > mouse_position.y)
+                {
+                    self.projectile.angle = ((START_POS.y - mouse_position.y)/(START_POS.x - mouse_position.x)).atan();
+                }
+                
+            }
+        }
 
         // quit after a projectile, when arrow origin reach ground
 
