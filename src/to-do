@@ -1,4 +1,6 @@
 Draw using tetra, opengl drawing?
-Rust, Drawparams origin ke karan dikkat?
+Rust, Drawparams centerOfTexture ke karan dikkat?
 
 Need to work on velocity.
+
+Two texture with centers pivoted, drawparams?
