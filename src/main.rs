@@ -66,8 +66,6 @@ impl Entity {
     }
     fn setPositionAround(&mut self, point: Vec2<f32>) {
         self.position = point - self.centerOfTexture();
-        // DEBUG
-        println!("setPositionAround-position {:?}", self.position);
     }
 }
 
@@ -90,9 +88,6 @@ impl GameState {
         let mut cross = Entity::new(cross_texture);
         cross.setPositionAround(START_POS);
 
-        // println!("Projectile centerOfTexture {:?}", projectile.position + projectile.centerOfTexture());
-        // println!("cross centerOfTexture {:?}", cross.position + cross.centerOfTexture());
-
         // Utility graphics
         let mouse_ptr_texture = Texture::new(ctx, "./resources/ball.png")?;
         let mouse_ptr_position = input::get_mouse_position(ctx).round();
@@ -114,20 +109,16 @@ impl State for GameState {
         graphics::clear(ctx, Color::rgb(0.2, 0.3, 0.9));
         // draw projectile
         let drawparams_projectile = graphics::DrawParams::new()
-            //.origin(self.projectile.centerOfTexture())
-            .scale(Vec2::new(0.8, 0.6))
-            .position(self.projectile.position)
+            .origin(self.projectile.centerOfTexture())
+            //.scale(Vec2::new(0.6, 0.8))
+            .position(self.projectile.position + self.projectile.centerOfTexture())
             .rotation(self.projectile.angle);
-        println!("projectile position: {:?}", self.projectile.position);
-        println!("projectile.centerOfTexture : {:?}", self.projectile.centerOfTexture());
         graphics::draw(ctx, &self.projectile.texture, drawparams_projectile);
         
         // draw startPos OR cross, fine
         let drawparams_cross = graphics::DrawParams::new()
-            //.origin(START_POS)
-            .position(self.startPos.position);
-        println!("startPos.position : {:?}", self.startPos.position);
-        println!("startPos.centerOfTexture : {:?}", self.startPos.centerOfTexture());
+            //.origin(self.projectile.centerOfTexture())
+            .position(START_POS - self.startPos.centerOfTexture());
         graphics::draw(ctx, &self.startPos.texture, drawparams_cross);
 
         // draw mouse_ptr
@@ -149,8 +140,7 @@ impl State for GameState {
             self.projectile.velocity.y += GRAVITY * dt;
 
             // update angle, in radian
-            //let temp = - self.projectile.velocity.x / self.projectile.velocity.y;
-            self.projectile.angle = (self.projectile.velocity.y).atan2(self.projectile.velocity.x) + (f32::consts::FRAC_PI_2);
+            self.projectile.angle = (self.projectile.velocity.y).atan2(self.projectile.velocity.x);
         }
 
         // Pause with space for a sec.
@@ -160,10 +150,6 @@ impl State for GameState {
             false
         };
 
-        //mouse angle set
-        /*
-            If arrow not released ( bool is_arrow_released ) then set the angle to which the arrow should complete the projectile.
-        */
         self.mouse_ptr.position = input::get_mouse_position(ctx).round();
 
         if !self.is_arrow_released {
